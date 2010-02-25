@@ -1,0 +1,7 @@
+pkg
+*.swp
+*.log
+doc
+coverage
+.DS_Store
+dom111-sqlite3-v1.db
