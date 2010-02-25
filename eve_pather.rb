@@ -2,13 +2,14 @@ require 'polaris'
 require 'sqlite3'
 
 class SolarSystem
-  attr_accessor :sid, :x, :y, :z, :name
+  attr_accessor :sid, :x, :y, :z, :name, :sec
   def initialize(db_row)
     @sid = db_row[2]
     @name = db_row[3]
     @x = db_row[4].to_f
     @y = db_row[5].to_f
     @z = db_row[6].to_f
+    @sec = db_row[21].to_f
   end
   
   def <=>(b)
@@ -27,6 +28,7 @@ class SolarSystem
 end
 
 class Map
+  attr_accessor :security_factor
   def initialize
     @db = SQLite3::Database.new( "dom111-sqlite3-v1.db" )
     @neighbor_statement = @db.prepare("select * from mapSolarSystems where solarSystemID IN (select toSolarSystemID from mapSolarSystemJumps where fromSolarSystemID=?)")
@@ -41,6 +43,8 @@ class Map
       @jumps[row[2]] ||= []
       @jumps[row[2]] << row
     end
+    # ignore sec by default
+    @security_factor = 0
     puts "loaded jumps"
   end
 
@@ -48,7 +52,7 @@ class Map
 
   def cost(from, to)
     return 0 if from.sid == to.sid
-    return 1
+    return 1 + (1-to.sec)*@security_factor
 #    @cost ||= "5e+33".to_f
   end
 
@@ -90,6 +94,8 @@ end
 
 if __FILE__ == $0
   map = Map.new
+  #  UNCOMMENT TO TAKE SECURITY INTO ACCOUNT
+#  map.security_factor = 3
   pather = EvePather.new map
 
 #  D7-ZAC
