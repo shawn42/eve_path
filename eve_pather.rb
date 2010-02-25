@@ -4,7 +4,7 @@ require 'sqlite3'
 class SolarSystem
   attr_accessor :sid, :x, :y, :z, :name
   def initialize(db_row)
-    @sid = db_row[2].to_i
+    @sid = db_row[2]
     @name = db_row[3]
     @x = db_row[4].to_f
     @y = db_row[5].to_f
@@ -101,7 +101,18 @@ if __FILE__ == $0
 #  Aldrat
   to = map.location 30003416
 
-  path = pather.route from, to
+  path = nil
+  require 'benchmark'
+  Benchmark.bm(10) do |x|
+    x.report("D7-ZAC to Aldrat 10") do
+      10.times do
+        path = pather.route from, to
+      end
+    end
+  end
+
+
+#  path = pather.route from, to
   path ||= []
   p path.collect{|system|system.location.name}
   p path.size
