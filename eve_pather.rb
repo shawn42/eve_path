@@ -24,13 +24,6 @@ class SolarSystem
     "#{sid} [#{x},#{y},#{z}]"
   end
 
-  def eql?(other)
-    hash == other.hash
-  end
-
-  def hash
-    sid.hash
-  end
 end
 
 class Map
@@ -76,7 +69,7 @@ class Map
   end
 
   def location(id)
-    @systems[id]
+    @systems[id.to_s]
   end
 
 end
