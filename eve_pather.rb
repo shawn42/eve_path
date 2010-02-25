@@ -48,7 +48,7 @@ class Map
 
   def cost(from, to)
     return 0 if from.sid == to.sid
-    "1.0e+34".to_f
+    @cost ||= "1e+30".to_f
   end
 
   def distance(from, to)
