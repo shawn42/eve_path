@@ -48,10 +48,12 @@ class Map
 
   def cost(from, to)
     return 0 if from.sid == to.sid
-    @cost ||= "5e+33".to_f
+    return 1
+#    @cost ||= "5e+33".to_f
   end
 
   def distance(from, to)
+    @scale ||= 1/"5e+33".to_f
     f = from
     t = to
 
@@ -59,6 +61,7 @@ class Map
     y_dist = t.y-f.y
     z_dist = t.z-f.z
     dist = x_dist * x_dist + y_dist * y_dist + z_dist * z_dist
+    dist * @scale
   end
 
   def neighbors(system)
