@@ -37,28 +37,27 @@ class Polaris
 
         return path
       else
-        closed.push current_element.location, current_element
+        closed.push current_element.location.hash, current_element
         @map.neighbors(loc).each do |next_door|
           el = PathElement.new(next_door,current_element)
-#          puts "nextdoor: #{next_door}"
-#          puts "closed: #{closed.count}"
-#          gets
-          next if closed.has_key? next_door
-          
-          if @map.blocked? next_door, unit_type
-            #closed.push el.location, el
-          else
-            current_rating = current_element.cost_to + @map.cost(loc, next_door)
+          unless closed.has_key? next_door.hash
             
-            # add to open
-            el.cost_to = current_rating
-            el.dist_from = @map.distance(next_door,to)
-            
-            open.push el, el.rating
+            if @map.blocked? next_door, unit_type
+              #closed.push el.location, el
+            else
+              current_rating = current_element.cost_to + @map.cost(loc, next_door)
+              
+              # add to open
+              el.cost_to = current_rating
+              el.dist_from = @map.distance(next_door,to)
+              
+              open.push el, el.rating
+            end
           end
         end
       end
     end
+    puts "returning nil after #{@nodes_considered} nodes"
     nil
   end
 end
