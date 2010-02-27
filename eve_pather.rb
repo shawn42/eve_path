@@ -13,18 +13,12 @@ class SolarSystem
   end
   
   def <=>(b)
-    ret = 1
-    if sid == b.sid #@x == b.x && @y == b.y && @z == b.z
-      ret = 0
-    end
-    ret = -1 if @x <= b.x && @y <= b.y && @z < b.z
-    return ret
+    self.sid <=> b.sid
   end
 
   def to_s
     "#{sid} [#{x},#{y},#{z}]"
   end
-
 end
 
 class Map
