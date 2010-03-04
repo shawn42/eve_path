@@ -17,14 +17,14 @@ class SolarSystem
   end
 
   def to_s
-    "#{sid} [#{x},#{y},#{z}]"
+    "#{name} (#{sid}) [#{x},#{y},#{z}] [sec: #{@sec}]"
   end
 end
 
 class Map
-  attr_accessor :security_factor
+  attr_accessor :security_factors
   def initialize
-    @db = SQLite3::Database.new( "dom111-sqlite3-v1.db" )
+    @db = SQLite3::Database.new( "dom111_mapData.db" )
     @neighbor_statement = @db.prepare("select * from mapSolarSystems where solarSystemID IN (select toSolarSystemID from mapSolarSystemJumps where fromSolarSystemID=?)")
     @systems = {}
     @db.execute("select * from mapSolarSystems").each do |row|
@@ -38,7 +38,10 @@ class Map
       @jumps[row[2]] << row
     end
     # ignore sec by default
-    @security_factor = 0
+    @security_factors = Hash.new
+    @security_factors[:highsec] = 1
+    @security_factors[:lowsec] = 1
+    @security_factors[:nullsec] = 1
     puts "loaded jumps"
   end
 
@@ -46,8 +49,11 @@ class Map
 
   def cost(from, to)
     return 0 if from.sid == to.sid
-    return 1 + (1-to.sec)*@security_factor
-#    @cost ||= "5e+33".to_f
+    factor = @security_factors[:highsec] if(to.sec >= 0.5)
+    factor = @security_factors[:lowsec] if(to.sec < 0.5 && to.sec > 0.0)
+    factor = @security_factors[:nullsec] if(to.sec <= 0.0)
+    #    return 1 + (1-to.sec)*factor
+    return factor
   end
 
   def distance(from, to)
@@ -63,10 +69,8 @@ class Map
   end
 
   def neighbors(system)
-#    neighbors = @neighbor_statement.execute system.sid
     neighbors = @jumps[system.sid].collect{|n| @systems[n[3]]}
     neighbors ||= []
-#    neighbors.collect{|n| SolarSystem.new(n)}
   end
 
   def location(id)
@@ -89,7 +93,9 @@ end
 if __FILE__ == $0
   map = Map.new
   #  UNCOMMENT TO TAKE SECURITY INTO ACCOUNT
-#  map.security_factor = 3
+  map.security_factors[:highsec] = 1
+  map.security_factors[:lowsec] = 1
+  map.security_factors[:nullsec] = 1
   pather = EvePather.new map
 
 #  D7-ZAC
